@@ -1,0 +1,45 @@
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Available Books</h1>
+
+    <div *ngIf="books.length === 0" class="text-center text-gray-500 mt-8">
+        No books found. <a routerLink="/add-book" class="text-indigo-600 hover:underline">Add one?</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" *ngIf="books.length > 0">
+        <div *ngFor="let book of books" class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+            <ng-container *ngIf="editBookId !== book.id; else editForm">
+                <h3 class="text-xl font-semibold text-gray-800">{{ book.title }}</h3>
+                <p class="text-gray-600 mt-1">by {{ book.author }}</p>
+                <p class="text-gray-700 mt-2">{{ book.description }}</p>
+                <div class="mt-4">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="{
+                      'bg-green-100 text-green-800': book.status === 'available',
+                      'bg-red-100 text-red-800': book.status !== 'available'
+                    }">
+                        {{ book.status }}
+                    </span>
+                </div>
+                <button *ngIf="book.status === 'available' && book.ownerId !== currentUser?.uid"
+                    (click)="requestBorrow(book.id)"
+                    class="mt-4 px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                    Borrow
+                </button>
+                <div *ngIf="book.ownerId === currentUser?.uid" class="mt-4 flex space-x-2">
+                    <button (click)="startEdit(book)" class="px-3 py-1 bg-yellow-500 text-white rounded-md text-sm hover:bg-yellow-600">Edit</button>
+                    <button (click)="deleteBook(book.id)" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">Delete</button>
+                </div>
+            </ng-container>
+            <ng-template #editForm>
+                <form (ngSubmit)="saveEdit(book.id)">
+                    <input [(ngModel)]="editBook.title" name="title" class="block w-full mb-2 border rounded px-2 py-1" placeholder="Title" required />
+                    <input [(ngModel)]="editBook.author" name="author" class="block w-full mb-2 border rounded px-2 py-1" placeholder="Author" required />
+                    <textarea [(ngModel)]="editBook.description" name="description" class="block w-full mb-2 border rounded px-2 py-1" placeholder="Description"></textarea>
+                    <div class="flex space-x-2">
+                        <button type="submit" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">Save</button>
+                        <button type="button" (click)="cancelEdit()" class="px-3 py-1 bg-gray-400 text-white rounded-md text-sm hover:bg-gray-500">Cancel</button>
+                    </div>
+                </form>
+            </ng-template>
+        </div>
+    </div>
+</div>
